@@ -114,6 +114,8 @@ git add *
 git commit -am "自动提交" #-a 参数会在提交到本地仓库的时候，会先更新修改和删除的文件信息到暂存区（它不会提交新增加的文件信息）
 git push git@gitee.com:wohtnaw/markdown.git
 
+#以下是github的push
+git push https://github.com/wohtnaw/wohtnawmarkdown.git
 
 #编辑完成后，将以上脚本移动到指定路径下
 mv gitpush.sh 脚本路径
