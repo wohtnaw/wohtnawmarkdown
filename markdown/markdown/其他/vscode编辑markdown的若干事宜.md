@@ -25,3 +25,5 @@ markdown预览：快捷键是ctrl+k,v
    3. doc：存放文档，在此目录下，创建各个项目的文档目录
 # 启用自动保存
 按ctrl+p，搜索auto save，设置onFocus...
+# tips
+1. ctrl+j可以打开终端
