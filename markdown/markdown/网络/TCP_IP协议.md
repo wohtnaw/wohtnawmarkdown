@@ -44,6 +44,7 @@ TCP/IP建立连接过程就是三次握手的过程，其详细步骤如下：
 以下是示意图：
 ```mermaid
 sequenceDiagram
+    title 三次握手
     Client ->> Server: SYN，seq=x
     Server ->> Client: SYN，ACK=x+1，seq=y
     Client ->> Server: ACK=y+1，seq=x+1
