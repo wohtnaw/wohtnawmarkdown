@@ -1,4 +1,6 @@
-# 思维导图
+# PlantUML
+注意：vscode和GitHub对于PlantUML的支持有限。其中，vscode有PlantUML的插件，但是对于方括号中的内容会报错，预览却是正常的；GitHub则是不支持PlantUML语法。
+## 思维导图
 表达发散性思维的有效图形思维工具
 
 ```plantuml
@@ -38,7 +40,7 @@ left side
 @endmindmap
 ```
 
-# 时序图
+## 时序图
 时序图，又名序列图、循序图，是一种UML交互图。它通过描述对象之间发送消息的时间顺序显示多个对象之间的动态协作。它可以表示用例的行为顺序，当执行一个用例行为时，其中的每条消息对应一个类操作或状态机中引起转换的触发事件。
 ```plantuml
 @startuml
@@ -59,7 +61,7 @@ end
 alice -> coco:hello
 @enduml
 ```
-# 甘特图
+## 甘特图
 甘特图又称为横道图、条状图(Bar chart)。其通过条状图来显示项目、进度和其他时间相关的系统进展的内在关系随着时间进展的情况。
 ```plantuml
 @startgantt
@@ -75,7 +77,8 @@ alice -> coco:hello
 [T5 (2 weeks)] lasts 2 weeks
 @endgantt
 ```
-# 流程图
+# mermaid
+## 流程图
 ​所有流程图都由节点、几何形状和边、箭头或线组成。mermaid代码定义了这些节点和边的制作和交互方式。它还支持不同类型的箭头、多方向箭头以及与子图的链接。
 
 ```mermaid
@@ -83,12 +86,6 @@ graph LR
     1[方形] --带文字的无向连接线--- 2(圆角) --> 3((圆形)) --> 4>非对称] --> 5{菱形} --> 6{{六角形}} --> 7[\平行四边形\] --> 8[/平行四边形/] --> 9[/梯形\] --> 10[\梯形/]
 ```
 
-```mermaid
-sequenceDiagram
-Client ->> Server: SYN，seq=x
-Server ->> Client: SYN，ACK=x+1，seq=y
-Client ->> Server: ACK=y+1，seq=x+1
-```
 ``` mermaid
 graph LR
     执行1[i = 1]
@@ -119,4 +116,11 @@ graph LR
   执行1[i = 1]
   执行2[j = 0]
   执行3[i ++]
+```
+## 时序图
+```mermaid
+sequenceDiagram
+Client ->> Server: SYN，seq=x
+Server ->> Client: SYN，ACK=x+1，seq=y
+Client ->> Server: ACK=y+1，seq=x+1
 ```
