@@ -1,5 +1,5 @@
 # PlantUML
-注意：vscode和GitHub对于PlantUML的支持有限。其中，vscode有PlantUML的插件，但是对于方括号中的内容会报错，预览却是正常的；GitHub则是不支持PlantUML语法。
+注意:在vscode中安装plantuml插件后，编辑plantuml时会提示有问题，这可能是插件问题导致的，实际预览是正常的，github不支持plantuml图预览
 ## 思维导图
 表达发散性思维的有效图形思维工具
 
