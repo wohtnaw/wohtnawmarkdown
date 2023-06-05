@@ -326,7 +326,7 @@ sequenceDiagram
 
 <div align="center">
 
-![ipv4报文头部格式](../../img/网络/HCIA/IP报文头部.png)
+![ipv4报文头部格式](../../img/网络/HCIA/IP报文头部结构.png)
 
 </div>
 
