@@ -167,7 +167,7 @@ TCP/IP常见协议：
 
 <div align="center">
 
-![TCP头部](../../../markdown/img/网络/HCIA/TCP报文结构.png)
+![TCP结构](../../../markdown/img/网络/HCIA/TCP报文结构.png)
 
 </div>
 
@@ -326,7 +326,7 @@ sequenceDiagram
 
 <div align="center">
 
-![ipv4报文格式](../../img/网络/HCIA/ipv4报文格式.png)
+![ipv4报文头部格式](../../img/网络/HCIA/IP报文头部.png)
 
 </div>
 
