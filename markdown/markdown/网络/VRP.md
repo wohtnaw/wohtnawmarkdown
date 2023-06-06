@@ -77,6 +77,9 @@ ip address 12.1.1.1 24
 
 //R2
 ip address 12.1.1.2 24
+
+//查看路由器ip详情
+display ip interface brief
 ```
 2. 测试两台设备是否可以通信：`ping 12.1.1.2`
 3. 配置vty：`user-interface vty 0 4`(同时设置5个vty连接，可同时供5个telnet连接此设备，当超出5个时，无法连接)
@@ -114,4 +117,4 @@ local-user xxx password cipher Huawei@123
 local-user xxx service-type telnet
 ```
 6. 在R1上使用Telnet连接R2：`telnet 12.1.1.2`
-7. 注意：配置完成后，必须执行`save`保存配置
+7. 注意：配置完成后，必须执行`save`保存配置（在用户视图下）
