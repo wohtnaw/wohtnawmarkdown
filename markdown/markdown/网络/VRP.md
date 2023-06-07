@@ -92,7 +92,7 @@ display ip interface brief
 //设置认证模式为password
 authentication-mode password
 
-//设置密码为Huawei@123
+//（修改密码）设置密码为Huawei@123
 set authentication password cipher Huawei@123
 
 //配置权限等级为15
