@@ -830,21 +830,6 @@ VLAN 的划分包括如下 5 种方法：
 3. 基于协议划分：根据数据帧所属的协议（族）类型及封装格式来划分 VLAN。网络管理员预先配置以太网帧中的协议域和 VLAN ID 的映射关系表，如果收到的是Untagged 帧，就依据该表给数据帧添加指定 VLAN 的标签，然后数据帧将在指定 VLAN 中传输。
 4. 基于策略划分：根据配置的策略划分 VLAN，能实现多种组合的划分方式，包括接口、MAC 地址、IP 地址等。网络管理员预先配置策略，如果收到的是 Untagged 帧，且匹配配置的策略时，给数据帧添加指定 VLAN 的标签，然后数据帧将在指定 VLAN 中传输
 ### 以太网二层接口类型
-配置接口类型：
-
-```
-//创建vlan
-vlan 10
-
-//进入接口
-interface g0/0/0
-
-//定义接口类型
-port link-type 类型
-
-//将接口加入vlan10(设置PVID)
-port default vlan 10
-```
 1. Access 接口
 
 上文已经介绍了交换机如何识别数据帧属于哪个 VLAN 以及 VLAN 的划分方式，那交换机对于 Untagged 帧和 Tagged 帧又是如何处理的呢？
@@ -857,6 +842,21 @@ port default vlan 10
 当 Access 接口从链路上收到一个 Tagged 帧，交换机会检查这个帧的 Tag 中的 VID 是否与PVID 相同。如果相同，则对这个 Tagged 帧进行转发操作；如果不同，则直接丢弃这个Tagged 帧。
 * Access 接口发送数据帧：
 当一个 Tagged 帧从本交换机的其他接口到达一个 Access 接口后，交换机会检查这个帧的Tag 中的 VID 是否与 PVID 相同：如果相同，则将这个 Tagged 帧的 Tag 进行剥离，然后将得到的 Untagged 帧从链路上发送出去；如果不同，则直接丢弃这个 Tagged 帧。
+
+配置方式：
+```
+//创建vlan
+vlan 10
+
+//进入接口
+interface g0/0/0
+
+//定义接口类型
+port link-type access
+
+//将接口加入vlan10(设置PVID)
+port default vlan 10
+```
 2. Trunk 接口
 对于 Trunk 接口，除了要配置 PVID 外，还必须配置允许通过的 VLAN ID 列表，其中 VLAN 1 是默认存在的。
 
@@ -872,6 +872,18 @@ Trunk 接口可以允许多个 VLAN 的帧带 Tag 通过，但只允许一个 VL
 当一个 Tagged 帧从本交换机的其他接口到达一个 Trunk 接口后，如果这个帧的 Tag 中的VID 不在允许通过的 VLAN ID 列表中，则该 Tagged 帧会被直接丢弃。
 
 当一个 Tagged 帧从本交换机的其他接口到达一个 Trunk 接口后，如果这个帧的 Tag 中的VID 在允许通过的 VLAN ID 列表中，则会比较该 Tag 中的 VID 是否与接口的 PVID 相同：如果相同，则交换机会对这个 Tagged 帧的 Tag 进行剥离，然后将得到的 Untagged 帧从链路上发送出去；如果不同，则交换机不会对这个 Tagged 帧的 Tag 进行剥离，而是直接将它从链路上发送出去
+
+配置方式：
+```
+//配置接口
+port link-type trunk
+
+//设置允许列表
+port trunk allow-pass vlan {vlan-id1 [to vlan-id2] | all}
+
+//(可选)配置trunk接口的缺省vlan
+port trunk pvid vlan vlan-id
+```
 3.  Hybrid 接口
 对于 Hybrid 接口，除了要配置 PVID 外，还存在两个允许通过的 VLAN ID 列表，一个是Untagged VLAN ID 列表，另一个是 Tagged VLAN ID 列表，其中 VLAN 1 默认在Untagged VLAN 列表中。这两个允许通过列表中的所有 VLAN 的帧都是允许通过这个Hybrid 接口的。
 * Hybrid 接口特点：
@@ -890,3 +902,19 @@ Hybrid 接口可以允许多个 VLAN 的帧带 Tag 通过，且允许从该类�
 当一个 Tagged 帧从本交换机的其他接口到达一个 Hybrid 接口后，如果这个帧的 Tag 中VID 在 Untagged VLAN ID 列表中，则交换机会对这个 Tagged 帧的 Tag 进行剥离，然后将得到的 Untagged 帧从链路上发送出去
 
 当一个 Tagged 帧从本交换机的其他接口到达一个 Hybrid 接口后，如果这个帧的 Tag 中的VID 在 Tagged VLAN ID 列表中，则交换机不会对这个 Tagged 帧的 Tag 进行剥离，而是直接将它从链路上发送出去
+
+配置方式：
+```
+//配置接口
+port link-type hybrid
+
+//在接口视图下，配置 Hybrid 类型接口加入的 VLAN，这些 VLAN 的帧以 Untagged 方式通过接口
+port hybrid untagged vlan  vlan {vlan-id1 [to vlan-id2] | all}
+
+//在接口视图下，配置 Hybrid 类型接口加入的 VLAN，这些 VLAN 的帧以 Tagged 方式通过接口
+port hybrid tagged  vlan {vlan-id1 [to vlan-id2] | all}
+
+//(可选)配置trunk接口的缺省vlan
+port hybrid pvid vlan vlan-id
+```
+4. 接口划分注意事项：access只需要考虑PVID，trunk和hybrid需要考虑PVID和允许列表
