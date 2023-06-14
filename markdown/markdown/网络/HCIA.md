@@ -918,3 +918,5 @@ port hybrid tagged  vlan {vlan-id1 [to vlan-id2] | all}
 port hybrid pvid vlan vlan-id
 ```
 4. 接口划分注意事项：access只需要考虑PVID，trunk和hybrid需要考虑PVID和允许列表
+
+## 生成树
