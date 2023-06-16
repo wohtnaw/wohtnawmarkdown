@@ -1080,7 +1080,17 @@ STP 的端口状态迁移机制，运行 STP 协议的设备上端口状态有 5
 * Listening：侦听状态。端口可以转发 BPDU 报文，但不能转发用户流量。
 * Blocking：阻塞状态。端口仅仅能接收并处理 BPDU，不能转发 BPDU，也不能转发用户流量。此状态是预备端口的最终状态。
 * Disabled：禁用状态。端口既不处理和转发 BPDU 报文，也不转发用户流量
+17. 相关配置命令
 
+```
+//设置STP模式，此处为STP
+stp mode stp
 
+//显示STP摘要
+display stp brief
+
+//修改桥优先级
+stp priority 0
+```
 
 同则转发  不同则丢弃  接收帧时有两种动作  转发  丢弃  一句话  收到的帧如果有tag  就直接比较   没有tag  就打上pvid标记再比较 注意  pvid和vid的区别    pvid不一定和vid相等  trunk接口上  如果配置了pvid  一定要在允许列表中加入它  否则对应tag的帧无法通过实验   交换机直连PC  接口为trunk   打上pvid后  允许通过列表里有无此vid是否能ping通另一台相同网段的PC
