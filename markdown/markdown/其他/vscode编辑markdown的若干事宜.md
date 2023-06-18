@@ -27,3 +27,4 @@ markdown预览：快捷键是ctrl+k,v
 按ctrl+p，搜索auto save，设置onFocus...
 # tips
 1. ctrl+j可以打开终端
+2. 插入图片时，图片链接上下各空一行，否则github预览格式会乱
