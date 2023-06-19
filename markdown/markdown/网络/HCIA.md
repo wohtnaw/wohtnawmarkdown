@@ -167,7 +167,7 @@ TCP/IP常见协议：
 
 <div align="center">
 
-![TCP结构](../../../markdown/img/网络/HCIA/TCP报文结构.png)
+![TCP结构](../../../markdown/img/TCP报文结构.png)
 
 </div>
 
@@ -287,7 +287,7 @@ sequenceDiagram
 
 <div align="center">
 
-![UDP报文格式](../../img/网络/HCIA/UDP报文格式.png)
+![UDP报文格式](../../img/UDP报文格式.png)
 
 </div>
 
@@ -299,7 +299,7 @@ sequenceDiagram
 
 <div align="center">
 
-![ARP报文格式](../../img/网络/HCIA/ARP报文格式.png)
+![ARP报文格式](../../img/ARP报文格式.png)
 
 </div>
 
@@ -326,7 +326,7 @@ sequenceDiagram
 
 <div align="center">
 
-![ipv4报文头部格式](../../img/网络/HCIA/IP报文头部结构.png)
+![ipv4报文头部格式](../../img/IP报文头部结构.png)
 
 </div>
 
@@ -1008,8 +1008,8 @@ BPDU 有两种类型：配置 BPDU 和 TCN BPDU。
 配置 BPDU 包含了桥 ID、路径开销和端口 ID 等参数。STP 协议通过在交换机之间传递配置BPDU 来选举根交换机，以及确定每个交换机端口的角色和状态。在初始化过程中，每个桥都主动发送配置 BPDU。在网络拓扑稳定以后，只有根桥主动发送配置 BPDU，其他交换机在收到上游传来的配置 BPDU 后，才会发送自己的配置 BPDU。
 
 TCN BPDU 是指下游交换机感知到拓扑发生变化时向上游发送的拓扑变化通知
-![BPDU报文格式](../../img/网络/HCIA/BPDU报文格式.png)
-9. 配置 BPDU 的比较原则
+![BPDU报文格式](../../img/BPDU报文格式.png)
+1. 配置 BPDU 的比较原则
 * STP 操作：
   1. 选举一个根桥。
   2. 每个非根交换机选举一个根端口。
@@ -1071,8 +1071,8 @@ TCN BPDU 是指下游交换机感知到拓扑发生变化时向上游发送的�
 
 15. STP 的接口状态
 
-![stp端口状态](../../img/网络/HCIA/STP端口状态.png)
-16. STP 的接口状态迁移
+![stp端口状态](../../img/STP端口状态.png)
+1.  STP 的接口状态迁移
 
 STP 的端口状态迁移机制，运行 STP 协议的设备上端口状态有 5 种：
 * Forwarding：转发状态。端口既可转发用户流量也可转发 BPDU 报文，只有根端口或指定端口才能进入 Forwarding 状态。
@@ -1214,11 +1214,11 @@ ACL 编号：在网络设备上配置 ACL 时，每个 ACL 都需要分配一个
 ### ACL 的分类与标识
 1. 基于 ACL 规则定义方式的分类
 
-![基于 ACL 规则定义方式的分类](../../img/网络/HCIA/基于%20ACL%20规则定义方式的分类.png)
+![基于 ACL 规则定义方式的分类](../../img/基于%20ACL%20规则定义方式的分类.png)
 
-2. 基于 ACL 标识方法的分类
+1. 基于 ACL 标识方法的分类
 
-<a><img src="../../img/网络/HCIA/基于%20ACL%20标识方法的分类.png"></a>
+<a><img src="../../img/基于%20ACL%20标识方法的分类.png"></a>
 
 ### 基本 ACL&高级 ACL
 基本 ACL：主要针对 IP 报文的源 IP 地址进行匹配，基本 ACL 的编号范围是 2000-2999
@@ -1243,10 +1243,10 @@ ACL 编号：在网络设备上配置 ACL 时，每个 ACL 都需要分配一个
 **形象比喻：战时城门守军**
 ### ACL 的匹配位置
 
-![ACL 的匹配位置](../../img/网络/HCIA/ACL%20的匹配位置.png)
+![ACL 的匹配位置](../../img/ACL%20的匹配位置.png)
 ### 入站 (Inbound)及出站 (Outbound)方向
 
-![入站 (Inbound)及出站 (Outbound)方向](../../img/网络/HCIA/ACL入站及出站方向.png)
+![入站 (Inbound)及出站 (Outbound)方向](../../img/ACL入站及出站方向.png)
 # 网络地址转换
 ## NAT 概述
 ### NAT 产生背景
