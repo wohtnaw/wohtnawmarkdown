@@ -51,8 +51,3 @@ left side
 
 @endmindmap
 ```
-
-路径开销：A网桥要传递BPDU给下一个网桥B，其根路径开销为根桥到B网桥路径之和
-
-
-根桥发送的BPDU开销值为0
