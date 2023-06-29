@@ -130,3 +130,43 @@ left side
 
 @endmindmap
 ```
+## RSTP 
+### 概念
+1. 在IEEE 802.1W中定义
+2. 在许多方面对STP进行优化，收敛速度更快，而且兼容STP
+3. 端口角色优化：增加两个端口角色
+
+|RSTP端口角色|说明|备注|
+|:-:|:-:|:-:|
+|root port|根端口：去往根桥路径开销最小的端口||
+|designed port|指定端口：向本网段转发配置消息的端口||
+|alternate port|替代端口：学习其他网桥发送的BPDU报文而阻塞的端口|根端口的备份|
+|backup port|备份端口：学习到自己发送的BPDU而阻塞的端口|指定端口的备份端口|
+4. 端口状态优化：精简成3种状态
+
+|STP端口状态|RSTP端口状态|学习mac地址|转发数据|
+|:-:|:-:|:-:|:-:|
+|Forwarding|Forwarding|是|是|
+|Learning|Learning|是|否|
+|Listening|Discarding|否|否|
+|Blocking|Discarding|否|否|
+|Disabled|Discarding|否|否|
+5. 快速收敛机制
+根端口快速切换：如果根端口失效，则最优的alternate端口称为根端口，进入forwarding状态
+
+指定端口快速切换：如果指定端口失效，那么最优的backup端口将成为指定端口，进入forwarding状态
+6. 边缘端口
+边缘端口不参与RSTP计算，直接进入forwarding状态
+
+但是，一旦边缘端口收到bpdu，就会丧失边缘端口属性，成为普通STP端口，并重新进行生成树计算，从而引起网络震荡
+7. P/A机制：proposal/agreement
+加快上游端口进入forwarding状态的速度
+
+当一个端口被选举为指定端口后，会先进入discarding状态，然后通过P/A机制快速进入forwarding状态
+
+P/A机制要求两台交换机之间链路必须是点到点的全双工模式，一旦P/A不成功，指定端口的选择就需要等待两个forward delay，协商过程与STP一样
+7. 拓扑变更机制优化
+RSTP拓扑变化唯一标准：一个非边缘端口切换到forwarding状态
+8. RSTP对STP优化总结
+
+![](../../img/RSTP对STP的优化总结.png)
