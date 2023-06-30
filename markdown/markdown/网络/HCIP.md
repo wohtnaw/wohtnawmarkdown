@@ -142,6 +142,7 @@ left side
 |designed port|指定端口：向本网段转发配置消息的端口||
 |alternate port|替代端口：学习其他网桥发送的BPDU报文而阻塞的端口|根端口的备份|
 |backup port|备份端口：学习到自己发送的BPDU而阻塞的端口|指定端口的备份端口|
+
 4. 端口状态优化：精简成3种状态
 
 |STP端口状态|RSTP端口状态|学习mac地址|转发数据|
@@ -151,10 +152,12 @@ left side
 |Listening|Discarding|否|否|
 |Blocking|Discarding|否|否|
 |Disabled|Discarding|否|否|
+
 5. 快速收敛机制
 根端口快速切换：如果根端口失效，则最优的alternate端口成为根端口，进入forwarding状态
 
 指定端口快速切换：如果指定端口失效，那么最优的backup端口将成为指定端口，进入forwarding状态
+
 6. 边缘端口
 边缘端口不参与RSTP计算，直接进入forwarding状态
 
@@ -165,8 +168,18 @@ left side
 当一个端口被选举为指定端口后，会先进入discarding状态，然后通过P/A机制快速进入forwarding状态
 
 P/A机制要求两台交换机之间链路必须是点到点的全双工模式，一旦P/A不成功，指定端口的选择就需要等待两个forward delay，协商过程与STP一样
-7. 拓扑变更机制优化
+8. 拓扑变更机制优化
 RSTP拓扑变化唯一标准：一个非边缘端口切换到forwarding状态
-8. RSTP对STP优化总结
+9. RSTP对STP优化总结
 
-![](../../img/RSTP对STP的优化总结.png)
+|对比项|STP|RSTP|
+|:-:|:-:|:-:|
+|角色状态|5个|3个|
+|端口角色|2个|4个|
+|配置BPDU flag位使用|2位|4位|
+|BPDU超时计时|maxage|hello\*3\*time factor|
+|处理次优BPDU|等待超时|立即回应最优BPDU|
+|稳定后BPDU发送方式|根桥发送|所有交换机|
+|快速收敛|无|P/A机制|
+|边缘端口|无|有|
+|保护功能|无|4中保护机制|
