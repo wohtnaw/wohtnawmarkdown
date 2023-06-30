@@ -152,7 +152,7 @@ left side
 |Blocking|Discarding|否|否|
 |Disabled|Discarding|否|否|
 5. 快速收敛机制
-根端口快速切换：如果根端口失效，则最优的alternate端口称为根端口，进入forwarding状态
+根端口快速切换：如果根端口失效，则最优的alternate端口成为根端口，进入forwarding状态
 
 指定端口快速切换：如果指定端口失效，那么最优的backup端口将成为指定端口，进入forwarding状态
 6. 边缘端口
