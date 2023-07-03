@@ -275,8 +275,9 @@ MSTP域的属性，描述了VLAN和MSTI间的映射关系
 ## LACP模式
 LACP模式也称为M:N模式，其中M条链路处于活动状态转发数据，N条链路处于非活动状态作为备份链路
 
-## 配置LACP模式
+## LACP配置LACP模式
 配置LACP模式的步骤：
+
 * 创建Eth-Trunk；
 * 配置Eth-Trunk的工作模式；
 * Eth-Trunk中加入成员接口；
@@ -284,3 +285,63 @@ LACP模式也称为M:N模式，其中M条链路处于活动状态转发数据，
 * （可选）配置活动接口数上限阈值；
 * （可选）配置接口LACP优先级；
 * （可选）使能LACP抢占并配置抢占延时时间
+
+## 负载分担
+
+1. 基于包的负载分担
+
+在使用Eth-Trunk转发数据时，由于聚合组两端设备之间有多条物理链路，如果每个数据帧在不同链路上转发，则有可能导致数据帧到达对端时间不一致，从而引发数据乱序
+
+2. 基于流的负载分担
+
+Eth-Trunk推荐采用流负载分担的方式，即一条相同的流负载到一条链路，这样既保证了同一数据流的数据帧在同一条物理链路转发，又实现了流量在聚合组内各种物理链路上的负载分担
+
+这种分担模式可以选择按地址分类：源IP/源目IP/源MAC/源目MAC，默认是源目IP，可以通过`load-balence`来设置
+
+# VLAN高级技术
+## VLAN聚合
+### VLAN聚合产生的技术背景
+
+1. 在一般的三层交换机中，通常是采用一个VLAN对应一个VLANIF接口的方式实现广播域之间的互通，这在某些情况下导致了IP地址的浪费。
+
+2. 因为一个VLAN对应的子网中，子网号、子网广播地址、子网网关地址不能用作VLAN内的主机IP地址，且子网中实际接入的主机可能少于可用IP地址数量，空闲的IP地址也会因不能再被其他VLAN使用而被浪费掉
+
+### VLAN聚合概述
+
+1. VLAN聚合（VLAN Aggregation，也称Super-VLAN）: 指在一个物理网络内，用多个VLAN（称为Sub-VLAN）隔离广播域，并将这些Sub-VLAN聚合成一个逻辑的VLAN（称为Super-VLAN），这些Sub-VLAN使用同一个IP子网和缺省网关，进而达到节约IP地址资源的目的。
+
+2. Sub-VLAN：只包含物理接口，不能建立三层VLANIF接口，用于隔离广播域。每个Sub-VLAN内的主机与外部的三层通信是靠Super-VLAN的三层VLANIF接口来实现的。
+
+3. Super-VLAN：只建立三层VLANIF接口，不包含物理接口，与子网网关对应。与普通VLAN不同，Super-VLAN的VLANIF接口状态取决于所包含Sub-VLAN的物理接口状态
+
+### VLAN聚合的原理
+
+每个Sub-VLAN对应一个广播域，多个Sub-VLAN和一个Super-VLAN关联，只给Super-VLAN分配一个IP子网，所有Sub-VLAN都使用Super-VLAN的IP子网和缺省网关进行三层通信
+
+### VLAN聚合的应用
+
+传统VLAN方式每一个VLAN需要划分不同的IP地址网段，在本例中需要耗费4个IP网段和产生4条路由条目；Super-VLAN方式只需要分配一个IP地址网段，下属二层VLAN共用同一个IP地址网段，共用同一个三层网关，同时VLAN之间保持二层隔离
+
+### 相同Sub-VLAN内部通信
+
+同一个Sub-VLAN之间属于同一个广播域，因此相同Sub-VLAN之间可以通过二层直接通信
+
+### 不同Sub-VLAN之间通信举例
+
+![](../../img/不同Sub-VLAN之间的通信.png)
+
+Super-VLAN VLANIF100开启ARP代理之后PC1和PC2之间通信过程如下：
+
+1. PC1发现PC2与自己在同一网段，且自己ARP表无PC2对应表项，则直接发送ARP广播请求PC2的MAC地址。
+
+2. 作为网关的Super-VLAN对应的VLANIF 100收到PC1的ARP请求，由于网关上使能Sub-VLAN间的ARP代理功能，则向Super-VLAN 100的所有Sub-VLAN接口发送一个ARP广播，请求PC2的MAC地址。
+
+3. PC2收到网关发送的ARP广播后，对此请求进行ARP应答。
+
+4. 网关收到PC2的应答后，就把自己的MAC地址回应给PC1，PC1之后要发给PC2的报文都先发送给网关，由网关做三层转发。
+
+### Sub-VLAN与其他设备的二层通信
+
+* 当Sub-VLAN与其他设备进行二层通信时，与普通的VLAN内二层通信无区别。
+
+* 由于Super-VLAN不属于任何物理接口，即不会处理任何携带Super-VLAN标签的报文
