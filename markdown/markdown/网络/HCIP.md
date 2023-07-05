@@ -345,3 +345,237 @@ Super-VLAN VLANIF100开启ARP代理之后PC1和PC2之间通信过程如下：
 * 当Sub-VLAN与其他设备进行二层通信时，与普通的VLAN内二层通信无区别。
 
 * 由于Super-VLAN不属于任何物理接口，即不会处理任何携带Super-VLAN标签的报文
+
+## MUX VLAN
+### MUX VLAN产生背景
+
+在企业网络中，各个部门之间网络需要相互独立，通常用VLAN技术可以实现这一要求。如果企业规模很大，且拥有大量的合作伙伴，要求各个合作伙伴能够访问公司服务器，但是不能相互访问，这时如果使用传统的VLAN技术，不但需要耗费大量的VLAN ID，还增加了网络管理者的工作量同时也增加了维护量
+
+MUX VLAN（Multiplex VLAN）提供了一种通过VLAN进行网络资源控制的机制
+
+![](../../img/MUX%20vlan产生背景.png)
+### MUX VLAN的基本概念
+
+MUX VLAN分为Principal VLAN（主VLAN）和Subordinate VLAN（从VLAN），Subordinate VLAN又分为Separate VLAN（隔离型从VLAN）和Group VLAN（互通型从VLAN）
+
+![](../../img/MUX%20vlan的基本概念.png)
+
+### MUX VLAN的应用
+
+![](../../img/MUX%20vlan的应用.png)
+
+在交换机上，通过把部门A和部门B所在的VLAN分别设置为互通型从VLAN，把访客区所属的VLAN设置为隔离型从VLAN，把服务器所连接口所属VLAN设置为Principal VLAN，即主VLAN。并且所有从VLAN都与主VLAN绑定，从而实现如下网络设计要求：
+
+* 部门A内的用户之间能够实现二层互通。
+* 部门B内的用户之间能够实现二层互通。
+* 部门A与部门B的用户之间二层隔离。
+* 部门A和部门B的员工都能够通过二层访问服务器。
+* 访客区内的任意PC除了能访问服务器之外，不能访问其他任意设备，包括其他访客。
+
+## QinQ
+### QinQ概述
+
+* 随着以太网技术在网络中的大量部署，利用VLAN对用户进行隔离和标识受到很大限制。因为IEEE802.1Q中定义的VLAN Tag域只有12个比特，仅能表示4096个VLAN，无法满足城域以太网中标识大量用户的需求，于是QinQ技术应运而生。
+
+* QinQ（802.1Q in 802.1Q）技术是一项扩展VLAN空间的技术，通过在802.1Q标签报文的基础上再增加一层802.1Q的Tag来达到扩展VLAN空间的功能。
+
+* 如下图所示用户报文在公网上传递时携带了两层Tag，内层是私网Tag，外层是公网Tag
+
+![](../../img/QinQ概述.png)
+
+### QinQ封装结构
+
+QinQ封装报文是在无标签的以太网数据帧的源MAC地址字段后面加上两个VLAN标签构成
+
+* TPID（Tag Protocol Identifier，标签协议标识）表示帧类型。取值为0x8100时表示802.1Q Tag帧。如果不支持802.1Q的设备收到这样的帧，会将其丢弃。
+* CFI （Canonical Format Indicator，标准格式指示位），表示MAC地址在不同的传输介质中是否以标准格式进行封装，用于兼容以太网和令牌环网
+
+![](../../img/QinQ封装结构.png)
+
+### QinQ工作原理
+
+在公网的传输过程中，设备只根据外层VLAN Tag转发报文，并根据报文的外层VLAN Tag进行MAC地址学习，而用户的私网VLAN Tag将被当作报文的数据部分进行传输。即使私网VLAN Tag相同，也能通过公网VLAN Tag区分不同用户
+
+![](../../img/QinQ工作原理.png)
+
+### QinQ实现方式 - 基本QinQ 
+
+![](../../img/基本QinQ.png)
+
+基本QinQ的报文处理过程:（基于端口）
+
+1. SW1收到VLAN ID为10和20的报文，将该报文发给SW2。
+2. SW2收到该报文后，在该报文原有Tag的外侧再添加一层VLAN ID 为100的外层Tag。
+3. 带着两层Tag的用户数据报文在网络中按照正常的二层转发流程转发。
+4. SW3收到VLAN100的报文后，剥离报文的外层Tag（VLAN ID 为100）。将报文发送给SW4，此时报文只有一层Tag（VLAN ID 为10或20）。
+5. SW4收到该报文，根据VLAN ID和目的MAC地址进行相应的转发。
+
+### QinQ实现方式 - 灵活QinQ
+
+![](../../img/灵活QinQ.png)
+
+灵活QinQ的报文处理过程：（基于流分类）
+
+1. SW1收到VLAN ID为10和20的报文，将该报文转发给SW2。
+2. SW2收到VLAN ID为10的报文后，添加一层VLAN ID 为100 的外层Tag；SW2收到VLAN ID为20的报文后，添加一层VLAN ID为200的外层Tag。
+3. 带着两层Tag的用户数据报文在网络中按照正常的二层转发流程转发。
+4. SW3收到报文后，剥离报文的外层Tag（VLAN ID 为100或200）。将报文发送给SW4，此时报文只有一层Tag（VLAN ID 为10或20）。
+5. SW4收到报文，根据VLAN ID和目的MAC地址进行相应的转发。
+
+# VRRP
+## 单网关面临的问题
+
+当网关Router出现故障时，本网段内以该设备为网关的主机都不能与Internet进行通信
+
+![](../../img/单网关面临的问题.png)
+
+## VRRP概述
+
+通过把几台路由设备联合组成一台虚拟的“路由设备”，使用一定的机制保证当主机的下一跳路由设备出现故障时，及时将业务切换到备份路由设备，从而保持通讯的连续性和可靠性
+
+![](../../img/VRRP概述.png)
+
+## VRRP的基本概念 (1)
+
+* VRRP路由器：运行VRRP协议的路由器，如R1和R2。VRRP是配置在路由器的接口上的，而且也是基于接口来工作的。
+* VRID：一个VRRP组（VRRP Group）由多台协同工作的路由器（的接口）组成，使用相同的VRID（Virtual Router Identifier，虚拟路由器标识符）进行标识。属于同一个VRRP组的路由器之间交互VRRP协议报文并产生一台虚拟“路由器”。一个VRRP组中只能出现一台Master路由器。 
+
+![](../../img/VRRP基本概念1.png)
+
+## VRRP的基本概念 (2)
+
+* 虚拟路由器：VRRP为每一个组抽象出一台虚拟“路由器”（Virtual Router），该路由器并非真实存在的物理设备，而是由VRRP虚拟出来的逻辑设备。一个VRRP组只会产生一台虚拟路由器。
+* 虚拟IP地址及虚拟MAC地址：虚拟路由器拥有自己的IP地址以及MAC地址，其中IP地址由网络管理员在配置VRRP时指定，一台虚拟路由器可以有一个或多个IP地址，通常情况下用户使用该地址作为网关地址。而虚拟MAC地址的格式是“0000-5e00-01xx”，其中xx为VRID。
+
+![](../../img/VRRP基本概念2.png)
+
+## VRRP的基本概念 (3)
+
+* Master路由器：“Master路由器”在一个VRRP组中承担报文转发任务。在每一个VRRP组中，只有Master路由器才会响应针对虚拟IP地址的ARP Request。Master路由器会以一定的时间间隔周期性地发送VRRP报文，以便通知同一个VRRP组中的Backup路由器关于自己的存活情况。
+* Backup路由器：也被称为备份路由器。Backup路由器将会实时侦听Master路由器发送出来的VRRP报文，它随时准备接替Master路由器的工作。
+* Priority：优先级值是选举Master路由器和Backup路由器的依据，优先级取值范围0-255，值越大越优先，值相等则比较接口IP地址大小，大者优先。
+
+![](../../img/VRRP基本概念3.png)
+
+## VRRP报文格式
+
+VRRP只有一种报文，即Advertisement报文，基于组播方式发送，因此只能在同一个广播域传递。 Advertisement报文的目的组播地址为224.0.0.18
+
+![](../../img/VRRP报文格式.png)
+
+## VRRP定时器
+
+在VRRP协议工作过程中，VRRP定义了两个定时器：
+
+1. ADVER_INTERVAL定时器：Master发送VRRP通告报文时间周期，缺省值为1秒。
+2. MASTER_DOWN定时器：Backup设备监听该定时器超时后，会变为Master状态。MASTER_DOWN定时器计算公式如下：
+$$MASTER_DOWN =（3* ADVER_INTERVAL）+ Skew_time（偏移时间）$$
+其中，Skew_Time=（256–Priority）/256
+
+## VRRP状态机
+
+VRRP协议状态机有三种状态：Initialize（初始状态）、Master（活动状态）、Backup（备份状态）
+
+![](../../img/VRRP状态机.png)
+
+## VRRP协议状态
+
+1. Master状态
+
+* 定期（ADVER_INTERVAL）发送VRRP报文。
+* 以虚拟MAC地址响应对虚拟IP地址的ARP请求。
+* 转发目的MAC地址为虚拟MAC地址的IP报文。
+* 默认允许ping通虚拟IP地址。
+* 当多台设备同时为Master时，若设备收到与自己优先级相同的报文时，会进一步比较IP地址的大小。如果收到报文的源IP地址比自己大，则切换到Backup状态，否则保持Master状态
+
+2. Backup状态
+
+* 接收Master设备发送的VRRP报文，判断Master设备的状态是否正常。
+* 对虚拟IP地址的ARP请求，不做响应。
+* 丢弃目的MAC地址为虚拟MAC地址的IP报文。
+* 丢弃目的IP地址为虚拟IP地址的IP报文。
+* 如果收到优先级和自己相同或者比自己优先级大的报文时，重置MASTER_DOWN定时器，不进一步比较IP地址的大小
+
+## VRRP主备选举 (1)
+
+VRRP优先级不相等时主备选举过程：
+
+1. R1与R2的GE0/0/0接口VRRP优先级都是200，两台设备完成初始化后首先切换至Backup状态。
+2. 由于优先级相同，R1与R2的MASTER_DOWN定时器超时后，同时由Backup状态切换至Master状态。
+3. R1与R2交换VRRP报文，优先级一样，通过比较接口IP地址选举Master路由器，由于R2的接口IP地址大于R1的接口IP地址，因此R2被选举为Master路由器。
+4. R2被选举为Master路由器后，立即发送免费ARP报文将虚拟MAC地址通告给与它连接的设备和主机
+
+![](../../img/VRRP主备选举1.png)
+
+## VRRP主备选举 (2)
+
+VRRP优先级相等时主备选举过程：
+
+1. R1与R2的GE0/0/0接口VRRP优先级都是200，两台设备完成初始化后首先切换至Backup状态。
+2. 由于优先级相同，R1与R2的MASTER_DOWN定时器超时后，同时由Backup状态切换至Master状态。
+3. R1与R2交换VRRP报文，优先级一样，通过比较接口IP地址选举Master路由器，由于R2的接口IP地址大于R1的接口IP地址，因此R2被选举为Master路由器。
+4. R2被选举为Master路由器后，立即发送免费ARP报文将虚拟MAC地址通告给与它连接的设备和主机
+
+![](../../img/VRRP主备选举2.png)
+
+## VRRP主备选举 (3)
+
+当路由器接口被配置为VRRP的IP地址拥有者时（接口IP地址与Virtual IP相同），路由器无需等待任何定时器超时，可以直接切换至Master状态
+
+配置为IP地址拥有者时主备选举过程：
+
+1. R1与R2的GE0/0/0接口VRRP优先级都采用默认配置（默认为100），但是R1的GE0/0/0接口IP地址与Virtual IP地址相同。
+2. R1的GE0/0/0接口直接切换至Master状态，R1成为Master路由器
+
+![](../../img/VRRP主备选举3.png)
+
+## VRRP主备切换
+
+Master主动退出VRRP组：
+
+![](../../img/Master主动退出VRRP组.png)
+
+Master设备或者链路故障：
+
+![](../../img/Master设备或者链路故障.png)
+
+## VRRP主备回切 (1)
+
+1. 正常情况下，由Master设备负责转发用户报文，如图所示，所有用户流量通过R1到达Internet。
+2. 当R1出现故障时，网络会重新进行VRRP主备选举，如图所示，此时R2会成为新的Master设备负责转发用户报文。
+
+![](../../img/VRRP主备回切1.png)
+
+## VRRP主备回切 (2)
+
+当R1从故障恢复后，网络将重新进行VRRP主备选举，由于R1的优先级大于R2，所以R1又重新成为新的Master设备负责转发用户报文
+
+VRRP抢占模式（Preempt Mode） ：
+
+* 抢占模式（默认激活）：如果Backup路由器激活了抢占功能，那么当它发现Master路由器的优先级比自己更低时，它将立即切换至Master状态，成为新的Master路由器
+* 非抢占模式：如果Backup路由器没有激活抢占功能，那么即使它发现Master路由器的优先级比自己更低，也只能依然保持Backup状态，直到Master路由器失效。
+
+![](../../img/VRRP主备回切2.png)
+
+## VRRP典型应用
+### VRRP负载分担
+
+通过创建多个虚拟路由器，每个物理路由器在不同的VRRP组中扮演不同的角色，不同虚拟路由器的Virtual IP作为不同的内网网关地址可以实现流量转发负载分担
+
+![](../../img/VRRP负载分担.png)
+### VRRP监视上行端口
+
+VRRP可监视（Track）上行端口状态，当设备感知上行端口或者链路发生故障时，可主动降低VRRP优先级，从而保证上行链路正常的Backup设备能够通过选举切换为Master状态，指导报文转发。
+
+![](../../img/VRRP监视上行端口.png)
+
+### VRRP与BFD联动
+
+通过配置VRRP与BFD联动，当Backup设备通过BFD感知故障发生之后，不再等待Master_Down_Timer计时器超时而会在BFD检测周期结束后立即切换VRRP状态，此时可以实现毫秒级的主备切换
+
+![](../../img/VRRP与BFD联动.png)
+
+### VRRP与MSTP结合应用
+
+![](../../img/VRRP与MSTP结合应用.png)
+
