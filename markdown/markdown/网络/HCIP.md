@@ -935,3 +935,109 @@ MA网络中的问题
 
 ![](../../img/可按需调整设备接口的OSPF网络类型.png)
 
+# OSPF路由计算
+## 区域内路由计算
+### LSA的基本概念
+
+* 同一个区域中的所有路由器拥有完全一致的LSDB
+* LSA是OSPF进行路由计算的关键依据。
+* OSPF的LSU报文可以携带多种不同类型的LSA。
+* 各种类型的LSA拥有相同的报文头部。
+
+![](../../img/LSA.png)
+
+重要字段解释:
+* LS Age（链路状态老化时间）：此字段表示LSA已经生存的时间，单位是秒。
+* Options（可选项）：每一个bit都对应了OSPF所支持的某种特性。
+* LS Type（链路状态类型）：指示本LSA的类型。
+* Link State ID（链路状态ID）：不同的LSA，对该字段的定义不同。 
+* Advertising Router（通告路由器）：产生该LSA的路由器的Router ID。
+* LS Sequence Number（链路状态序列号）：当LSA每次有新的实例产生时，序列号就会增加。
+* LS Checksum（校验和）：用于保证数据的完整性和准确性
+* Length：是一个包含LSA头部在内的LSA的总长度值
+
+链路状态类型、链路状态ID、通告路由器三元组唯一地标识了一个LSA。
+
+链路状态老化时间 、链路状态序列号 、校验和用于判断LSA的新旧
+
+### 常见LSA的类型
+
+![](../../img/常见LSA的类型.png)
+
+### Router LSA详解 (1)
+
+* Router LSA（1类LSA）：每台OSPF路由器都会产生。它描述了该路由器直连接口的信息。
+* Router LSA只能在所属的区域内泛洪
+
+![](../../img/Router%20LSA详解1.png)
+
+* V (Virtual Link ) ：如果产生此LSA的路由器是虚连接的端点，则置为1。 
+* E (External )： 如果产生此LSA的路由器是ASBR，则置为1。 
+* B (Border )：如果产生此LSA的路由器是ABR，则置为1。 
+* links ：LSA中的Link（链路）数量。Router LSA使用Link来承载路由器直连接口的信息
+
+### Router LSA详解 (2)
+
+* Router LSA使用Link来承载路由器直连接口的信息。
+* 每条Link均包含“链路类型”、“链路ID”、“链路数据”以及“度量值”这几个关键信息。
+* 路由器可能会采用一个或者多个Link来描述某个接口
+
+![](../../img/Router%20LSA详解2.png)
+
+![](../../img/连接类型.png)
+
+### Router LSA描述P2P网络
+
+![](../../img/Router%20LSA描述P2P网络.png)
+
+R1向R3发送Router-LSA，携带拓扑和网段信息
+
+![](../../img/Router%20LSA描述P2P网络详情.png)
+
+### Router LSA描述TransNet
+
+![](../../img/Router%20LSA描述TransNet.png)
+
+![](../../img/Router%20LSA描述TransNet详情.png)
+
+### Network LSA详解
+
+* Network LSA（2类LSA） ：由DR产生，描述本网段的链路状态，在所属的区域内传播。
+* Network LSA 记录了该网段内所有与DR建立了邻接关系的OSPF路由器，同时携带了该网段的网络掩码
+
+![](../../img/Network%20LSA详解.png)
+
+* Link State ID ：DR的接口IP地址。
+* Network Mask：MA网络的子网掩码。
+* Attached Router：连接到该MA网络的路由器的Router-ID（与该DR建立了邻接关系的邻居的Router-ID，以及DR自己的Router-ID），如果有多台路由器接入该MA网络，则使用多个字段描述
+
+### Network LSA描述MA网络
+
+![](../../img/Network%20LSA描述MA网络.png)
+
+R2向R3和R5发送Network-LSA，携带拓扑和网段信息
+
+![](../../img/Network%20LSA描述MA网络详情.png)
+
+### SPF计算过程
+
+1. SPF算法 (1)
+
+Phase 1：构建SPF树。
+* 路由器将自己作为最短路径树的树根，根据Router-LSA和Network-LSA中的拓扑信息，依次将Cost值最小的路由器添加到SPF树中。路由器以Router ID或者DR标识。
+* 广播网络中DR和其所连接路由器的Cost值为0。
+* SPF树中只有单向的最短路径，保证了OSPF区域内路由计算不会出现环路。
+
+2. SPF算法 (2)
+
+Phase 2：计算最优路由。
+* 将Router-LSA、Network-LSA中的路由信息以叶子节点形式附加在对应的OSPF路由器上，计算最优路由。
+* 已经出现的路由信息不会再添加到SPF树干上
+
+3. 构建SPF树 (1)
+
+![](../../img/构建SPF树1.png)
+
+4. 构建SPF树 (2)
+
+![](../../img/构建SPF树2.png)
